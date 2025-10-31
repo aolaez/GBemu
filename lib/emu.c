@@ -26,7 +26,11 @@ void delay(u32 ms){
 }
 
 int emu_run(int argc, char **argv){
-    if (argc < 2){ // if no cartridge argument passed
+    if (argc < 2) {
+        printf("Usage: emu <rom_file>\n");
+        return -1;
+    }
+    if (!cart_load(argv[1])){ // if no cartridge argument passed
         printf("Failed to load ROM file: %s\n", argv[1]);
         return -2;
     }
