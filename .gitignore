@@ -1,0 +1,19 @@
+# Build directory
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+/*.cmake.user
+/games/
+
+# Executables
+*.o
+*.out
+*.exe
+gbemu
+
+# VSCode settings
+.vscode/
+
+# Temporary files
+*.swp
+*.tmp
