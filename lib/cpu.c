@@ -1,10 +1,11 @@
 #include <cpu.h>
 #include <bus.h>
+#include <emu.h>
 
 cpu_context ctx = {0};
 
 void cpu_init(){
-
+    ctx.regs.pc = 0x100;
 }
 
 static void fetch_instruction() {
@@ -45,8 +46,6 @@ static void fetch_data() {
             emu_cycles(1);
 
             ctx.fetch_data = (hi << 8) | lo;
-
-            ctx.regs.pc += 2;
             return;
         }
 
@@ -57,15 +56,17 @@ static void fetch_data() {
     }
 }
 
-static void execute{
-
+static void execute() {
+    printf("\tNot executing yet\n");
 }
 
 bool cpu_step() {
     if(!ctx.halted){
+        u16 pc = ctx.regs.pc;
         fetch_instruction();
         fetch_data();
+        printf("Executing Instruction: %02X     PC: %04X \n", ctx.curr_opcode, pc);
         execute();
     }
-    return false;
+    return true;
 }
