@@ -10,6 +10,8 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
+#define NOT_IMPL { fprintf(stderr, "NOT YET IMPLEMENTED\n"); exit(EXIT_FAILURE); };
+
 #define BIT(a, n) ((a & (1 << n)) ? 1 : 0)
 
 #define BIT_SET(a, n, on) (on ? a |= (1 << n) : a &= ~(1 << n))
