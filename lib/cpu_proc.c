@@ -7,7 +7,7 @@ static void proc_none(cpu_context *ctx) {
     exit(-7);
 }
 
-static void proc_none(cpu_context *ctx) {
+static void proc_nop(cpu_context *ctx) {
 
 }
 

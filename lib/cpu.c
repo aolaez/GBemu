@@ -38,13 +38,14 @@ static void fetch_data() {
 
         // reading 2 byte instruction so 2 reads
         case AM_D16: { // could be bug source
-            u16 lo = bus_read(ctx.regs.pc++);
+            u16 lo = bus_read(ctx.regs.pc);
             emu_cycles(1);
 
-            u16 hi = bus_read(ctx.regs.pc++);
+            u16 hi = bus_read(ctx.regs.pc + 1);
             emu_cycles(1);
 
-            ctx.fetch_data = (hi << 8) | lo;
+            ctx.fetch_data = lo | (hi << 8);
+            ctx.regs.pc += 2;
             return;
         }
 
@@ -59,7 +60,7 @@ static void execute() {
     IN_PROC proc = inst_get_processor(ctx.curr_instr->type);
 
     if (!proc){
-        NO_IMPL
+        NOT_IMPL
     }
 
     proc(&ctx);
@@ -70,8 +71,17 @@ bool cpu_step() {
         u16 pc = ctx.regs.pc;
         fetch_instruction();
         fetch_data();
-        printf("Executing Instruction: %02X     PC: %04X \n", ctx.curr_opcode, pc);
+
+        printf("%04X: %-7s (%02X %02X %02X) A: %02X B: %02X C: %02X\n", 
+            pc, inst_name(ctx.curr_instr->type), ctx.curr_opcode,
+            bus_read(pc + 1), bus_read(pc + 2), ctx.regs.a, ctx.regs.b, ctx.regs.c);
+
         execute();
+    }
+
+    if (ctx.curr_instr == NULL) {
+        printf("Unknown Instruction: %02X\n", ctx.curr_opcode);
+        exit(-7);
     }
     return true;
 }

@@ -1,4 +1,5 @@
 #include <bus.h>
+#include <cart.h>
 // Will read data from cartridge using the address bus
 
 // 0x0000 - 0x3FFF : ROM Bank 0
