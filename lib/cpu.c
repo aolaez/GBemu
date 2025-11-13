@@ -11,16 +11,15 @@ void cpu_init(){
 static void fetch_instruction() {
     ctx.curr_opcode = bus_read(ctx.regs.pc++); // read current opcode from program counter and increment program counter
     ctx.curr_instr = instruction_by_opcode(ctx.curr_opcode);
-
-    if (ctx.curr_instr == NULL) {
-        printf("Unknown Instruction %02X\n", ctx.curr_opcode);
-        exit(-7);
-    }
 }
 
 static void fetch_data() {
     ctx.mem_dest = 0;
     ctx.dest_is_mem = false;
+
+    if (ctx.curr_instr == NULL) {
+        return;
+    }
 
     switch(ctx.curr_instr->mode) {
         case AM_IMP: return;
@@ -57,7 +56,13 @@ static void fetch_data() {
 }
 
 static void execute() {
-    printf("\tNot executing yet\n");
+    IN_PROC proc = inst_get_processor(ctx.curr_instr->type);
+
+    if (!proc){
+        NO_IMPL
+    }
+
+    proc(&ctx);
 }
 
 bool cpu_step() {
