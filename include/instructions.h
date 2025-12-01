@@ -45,7 +45,7 @@ typedef enum {
 } reg_type;
 
 typedef enum {
-    IN_NONE, // placeholder instruction
+    IN_NONE,
     IN_NOP,
     IN_LD,
     IN_INC,

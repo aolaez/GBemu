@@ -11,6 +11,30 @@ static void proc_nop(cpu_context *ctx) {
 
 }
 
+static void proc_di(cpu_context *ctx) {
+    ctx->int_master_enabled = false;
+}
+
+void cpu_set_flags(cpu_context *ctx, char z, char n, char h, char c){
+    if (z != -1){
+        BIT_SET(ctx->regs.f, 7, z);
+    }
+    if (n != -1){
+        BIT_SET(ctx->regs.f, 6, n);
+    }
+    if (h != -1){
+        BIT_SET(ctx->regs.f, 5, h);
+    }
+    if (c != -1){
+        BIT_SET(ctx->regs.f, 4, c);
+    }
+}
+
+static void proc_xor(cpu_context *ctx) {
+    ctx->regs.a ^= ctx->fetch_data & 0xFF;
+    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
+}
+
 static void proc_ld(cpu_context *ctx) {
     // TODO;
 }
@@ -41,7 +65,9 @@ static IN_PROC processors[] = {
     [IN_NONE] = proc_none, // IN_NONE
     [IN_NOP] = proc_nop,
     [IN_LD] = proc_ld,
-    [IN_JP] = proc_jp
+    [IN_JP] = proc_jp,
+    [IN_DI] = proc_di,
+    [IN_XOR] = proc_xor
 };
 
 IN_PROC inst_get_processor(in_type type){

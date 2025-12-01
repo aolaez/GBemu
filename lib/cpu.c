@@ -6,6 +6,7 @@ cpu_context ctx = {0};
 
 void cpu_init(){
     ctx.regs.pc = 0x100;
+    ctx.regs.a = 0x01; // default a register value
 }
 
 static void fetch_instruction() {
@@ -76,12 +77,12 @@ bool cpu_step() {
             pc, inst_name(ctx.curr_instr->type), ctx.curr_opcode,
             bus_read(pc + 1), bus_read(pc + 2), ctx.regs.a, ctx.regs.b, ctx.regs.c);
 
-        execute();
-    }
+        if (ctx.curr_instr == NULL) {
+            printf("Unknown Instruction: %02X\n", ctx.curr_opcode);
+            exit(-7);
+        }
 
-    if (ctx.curr_instr == NULL) {
-        printf("Unknown Instruction: %02X\n", ctx.curr_opcode);
-        exit(-7);
+        execute();
     }
     return true;
 }
