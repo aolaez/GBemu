@@ -1,5 +1,7 @@
 #include <bus.h>
 #include <cart.h>
+#include <ram.h>
+#include <cpu.h>
 // Will read data from cartridge using the address bus
 
 // 0x0000 - 0x3FFF : ROM Bank 0
@@ -22,8 +24,42 @@ u8 bus_read(u16 address){
     // ROM data
     if(address < 0x8000){
         return cart_read(address);
+    } else if (address < 0xA000) {
+        //Char/Map Data
+        //TODO
+        printf("UNSUPPORTED bus_read(%04X)\n", address);
+        NOT_IMPL
+    } else if (address < 0xC000) {
+        //Cartridge RAM
+        return cart_read(address);
+    } else if (address < 0xE000) {
+        //WRAM (Working RAM)
+        return wram_read(address);
+    } else if (address < 0xFE00) {
+        //reserved echo ram...
+        return 0;
+    } else if (address < 0xFEA0) {
+        //OAM
+        //TODO
+        printf("UNSUPPORTED bus_read(%04X)\n", address);
+        NOT_IMPL
+    } else if (address < 0xFF00) {
+        //reserved unusable...
+        return 0;
+    } else if (address < 0xFF80) {
+        //IO Registers...
+        //TODO
+        printf("UNSUPPORTED bus_read(%04X)\n", address);
+        NOT_IMPL
+    } else if (address == 0xFFFF) {
+        //CPU ENABLE REGISTER...
+        //TODO
+        return cpu_get_ie_register();
     }
     printf("UNSUPPORTED bus_read(%04X)\n", address);
+
+    //NO_IMPL
+    return hram_read(address); // high ram or zero page
 }
 
 void bus_write(u16 address, u8 value){
@@ -32,8 +68,39 @@ void bus_write(u16 address, u8 value){
         // some carts have special instruction when you try to write to ROM so need this
         cart_write(address, value);
         return;
+    } else if (address < 0xA000) {
+        //Char/Map Data
+        //TODO
+        printf("UNSUPPORTED bus_write(%04X)\n", address);
+        NOT_IMPL
+    } else if (address < 0xC000) {
+        //EXT-RAM
+        cart_write(address, value);
+    } else if (address < 0xE000) {
+        //WRAM
+        wram_write(address, value);
+    } else if (address < 0xFE00) {
+        //reserved echo ram
+    } else if (address < 0xFEA0) {
+        //OAM
+
+        //TODO
+        printf("UNSUPPORTED bus_write(%04X)\n", address);
+        NOT_IMPL
+    } else if (address < 0xFF00) {
+        //unusable reserved
+    } else if (address < 0xFF80) {
+        //IO Registers...
+        //TODO
+        printf("UNSUPPORTED bus_write(%04X)\n", address);
+        //NO_IMPL
+    } else if (address == 0xFFFF) {
+        //CPU SET ENABLE REGISTER
+        
+        cpu_set_ie_register(value);
+    } else {
+        hram_write(address, value);
     }
-    printf("UNSUPPORTED bus_write(%04X)\n", address);
 }
 
 u16 bus_read16(u16 address) {
