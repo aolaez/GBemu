@@ -1,6 +1,7 @@
 #include <cpu.h>
 #include <emu.h>
 #include <bus.h>
+#include <stack.h>
 
 // Processes CPU Instructions
 
@@ -73,6 +74,35 @@ static void proc_ldh(cpu_context *ctx) {
 
     emu_cycles(1);
 }
+
+static void proc_pop(cpu_context *ctx) {
+    u16 lo = stack_pop();
+    emu_cycles(1);
+    u16 hi = stack_pop();
+    emu_cycles(1);
+
+    u16 n = (hi << 8) | lo;
+
+    cpu_set_reg(ctx->curr_instr->reg_1, n);
+
+    if (ctx->curr_instr->reg_1 == RT_AF) {
+        cpu_set_reg(ctx->curr_instr->reg_1, n & 0xFFF0);
+    }
+}
+
+static void proc_push(cpu_context *ctx) {
+    u16 hi = (cpu_read_reg(ctx->curr_instr->reg_1) >> 8) & 0xFF;
+    emu_cycles(1);
+    stack_push(hi);
+
+    u16 lo = cpu_read_reg(ctx->curr_instr->reg_1) & 0xFF;
+    emu_cycles(1);
+    stack_push(lo);
+    
+    emu_cycles(1);
+}
+
+
 static bool check_cond(cpu_context *ctx) {
     bool z = CPU_FLAG_Z;
     bool c = CPU_FLAG_C;
@@ -88,11 +118,57 @@ static bool check_cond(cpu_context *ctx) {
     return false;
 }
 
-static void proc_jp(cpu_context *ctx) {
+static void goto_addr(cpu_context *ctx, u16 addr, bool pushpc){
     if (check_cond(ctx)){
-        ctx->regs.pc = ctx->fetch_data;
+        if (pushpc) {
+            emu_cycles(2); // bc 16 bit
+            stack_push16(ctx->regs.pc);
+        }
+
+        ctx->regs.pc = addr;
         emu_cycles(1);
     }
+}
+
+static void proc_jp(cpu_context *ctx) {
+    goto_addr(ctx, ctx->fetch_data, false);
+}
+
+static void proc_jr(cpu_context *ctx) { // jump relative
+    char rel = (char)(ctx->fetch_data & 0xFF);
+    u16 addr = ctx->regs.pc + rel;
+    goto_addr(ctx, addr, false);
+}
+
+static void proc_ret(cpu_context *ctx) {
+    if (ctx->curr_instr->cond != CT_NONE) {
+        emu_cycles(1);
+    }
+
+    if (check_cond(ctx)) {
+        u16 lo = stack_pop(); // two separate pops for cycle accuracy instead of pop16
+        emu_cycles(1);
+        u16 hi = stack_pop();
+        emu_cycles(1);
+
+        u16 n = (hi << 8) | lo;
+        ctx->regs.pc = n;
+
+        emu_cycles(1);
+    }
+}
+
+static void proc_rst(cpu_context *ctx) {
+    goto_addr(ctx, ctx->curr_instr->param, true);
+}
+
+static void proc_reti(cpu_context *ctx) {
+    ctx->int_master_enabled = true;
+    proc_ret(ctx);
+}
+
+static void proc_call(cpu_context *ctx) {
+    goto_addr(ctx, ctx->fetch_data, true);
 }
 
 static IN_PROC processors[] = {
@@ -102,6 +178,13 @@ static IN_PROC processors[] = {
     [IN_LDH] = proc_ldh,
     [IN_JP] = proc_jp,
     [IN_DI] = proc_di,
+    [IN_POP] = proc_pop,
+    [IN_PUSH] = proc_push,
+    [IN_JR] = proc_jr,
+    [IN_CALL] = proc_call,
+    [IN_RET] = proc_ret,
+    [IN_RST] = proc_rst,
+    [IN_RETI] = proc_reti,
     [IN_XOR] = proc_xor
 };
 
