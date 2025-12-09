@@ -96,3 +96,9 @@ cpu_registers *cpu_get_regs() {
     return &ctx.regs;
 }
 
+u8 cpu_get_int_flags(){
+    return ctx.int_flags;
+}
+void cpu_set_int_flags(u8 val){
+    ctx.int_flags = val;
+}

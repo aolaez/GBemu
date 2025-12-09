@@ -50,7 +50,7 @@ u8 bus_read(u16 address){
         //IO Registers...
         //TODO
         printf("UNSUPPORTED bus_read(%04X)\n", address);
-        NOT_IMPL
+        return 0;
     } else if (address == 0xFFFF) {
         //CPU ENABLE REGISTER...
         //TODO
@@ -67,12 +67,11 @@ void bus_write(u16 address, u8 value){
         // ROM data
         // some carts have special instruction when you try to write to ROM so need this
         cart_write(address, value);
-        return;
     } else if (address < 0xA000) {
         //Char/Map Data
         //TODO
         printf("UNSUPPORTED bus_write(%04X)\n", address);
-        NOT_IMPL
+        //NOT_IMPL
     } else if (address < 0xC000) {
         //EXT-RAM
         cart_write(address, value);
@@ -86,7 +85,7 @@ void bus_write(u16 address, u8 value){
 
         //TODO
         printf("UNSUPPORTED bus_write(%04X)\n", address);
-        NOT_IMPL
+        //NOT_IMPL
     } else if (address < 0xFF00) {
         //unusable reserved
     } else if (address < 0xFF80) {
