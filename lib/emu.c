@@ -37,7 +37,7 @@ void *cpu_run(void *p){
 
         if (!cpu_step()){ // do one cpu step and if it fails, exit
             printf("CPU Stopped\n");
-            return -3;
+            return 0;
         }
 
         ctx.ticks++; // if CPU step doesnt fail increment ticks

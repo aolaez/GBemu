@@ -40,7 +40,6 @@ typedef struct {
 
     bool int_master_enabled;
     bool enabling_ime;
-    bool die;
     u8 ie_register; // input enable reg
     u8 int_flags;
 } cpu_context;
