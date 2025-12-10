@@ -2,6 +2,8 @@
 
 static char serial_data[2];
 
+u8 ly = 0;
+
 u8 io_read(u16 address){
     if (address == 0xFF01) {
         return serial_data[0];
@@ -17,6 +19,10 @@ u8 io_read(u16 address){
 
     if (address == 0xFF0F) {
         return cpu_get_int_flags();
+    }
+
+    if (address == 0xFF44) {
+        return ly++;
     }
 
     printf("UNSUPPORTED bus_read(%04X)\n", address);
