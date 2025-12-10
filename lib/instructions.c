@@ -2,7 +2,7 @@
 #include <cpu.h>
 #include <bus.h>
 
-instruction instructions [0x100] = {
+instruction instructions[0x100] = {
     [0x00] = {IN_NOP, AM_IMP},
     [0x01] = {IN_LD, AM_R_D16, RT_BC},
     [0x02] = {IN_LD, AM_MR_R, RT_BC, RT_A},
@@ -280,7 +280,9 @@ instruction instructions [0x100] = {
     [0xFF] = {IN_RST, AM_IMP, RT_NONE, RT_NONE, CT_NONE, 0x38},
 };
 
-instruction *instruction_by_opcode(u8 opcode){
+
+
+instruction *instruction_by_opcode(u8 opcode) {
     return &instructions[opcode];
 }
 
@@ -335,7 +337,7 @@ char *inst_lookup[] = {
     "IN_SET"
 };
 
-char *inst_name(in_type t){
+char *inst_name(in_type t) {
     return inst_lookup[t];
 }
 

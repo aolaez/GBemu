@@ -1,11 +1,12 @@
 #include <io.h>
+#include <dma.h>
 #include <lcd.h>
 #include <timer.h>
 #include <cpu.h>
 
 static char serial_data[2];
 
-u8 io_read(u16 address){
+u8 io_read(u16 address) {
     if (address == 0xFF01) {
         return serial_data[0];
     }
@@ -30,7 +31,7 @@ u8 io_read(u16 address){
     return 0;
 }
 
-void io_write(u16 address, u8 value){
+void io_write(u16 address, u8 value) {
     if (address == 0xFF01) {
         serial_data[0] = value;
         return;
@@ -45,7 +46,7 @@ void io_write(u16 address, u8 value){
         timer_write(address, value);
         return;
     }
-
+    
     if (address == 0xFF0F) {
         cpu_set_int_flags(value);
         return;
